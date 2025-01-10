@@ -68,12 +68,12 @@ func main() {
 
 	r.Get("/weather/{cep}", weatherHandler)
 
+	log.Println("listening on port", conf.port)
 	http.ListenAndServe(":"+conf.port, r)
 }
 
 func weatherHandler(w http.ResponseWriter, r *http.Request) {
 	cep := chi.URLParam(r, "cep")
-
 	if !isValidCep(cep) {
 		log.Println("cep inválido:", cep)
 		http.Error(w, "invalid zipcode", http.StatusUnprocessableEntity)
@@ -88,6 +88,7 @@ func weatherHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if cepInfo == nil {
+		log.Println("cep not found")
 		http.Error(w, "can not find zipcode", http.StatusNotFound)
 		return
 	}
@@ -129,17 +130,17 @@ func getLocationData(cep string) (*cepInfo, error) {
 		Gia         string `json:"gia"`
 		Ddd         string `json:"ddd"`
 		Siafi       string `json:"siafi"`
-		Err         bool   `json:"erro"`
+		Err         string `json:"erro"`
 	}
 
 	var data respData
 
-	err := request(context.Background(), fmt.Sprintf("http://viacep.com.br/ws/%s/json/", cep), &data)
+	err := request(context.Background(), fmt.Sprintf("https://viacep.com.br/ws/%s/json/", cep), &data)
 	if err != nil {
 		return nil, fmt.Errorf("error requesting via cep: %w", err)
 	}
 
-	if data.Err {
+	if data.Err != "" {
 		return nil, nil
 	}
 
@@ -160,6 +161,7 @@ type WeatherInfo struct {
 	Fahrenheit float64 `json:"temp_F"`
 }
 
+// só para implementar a interface do Render do chi
 func (wi *WeatherInfo) Render(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
@@ -182,7 +184,8 @@ func getWeatherData(location string) (*WeatherInfo, error) {
 	}
 
 	resp := &WeatherInfo{
-		Celsius:    data.Current.TempC,
+		Celsius: data.Current.TempC,
+		// api devolve temperatura em Fahrenheit, não precisa calcular
 		Fahrenheit: data.Current.TempF,
 		Kelvin:     data.Current.TempC + 273,
 	}
