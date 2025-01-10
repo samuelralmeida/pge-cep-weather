@@ -47,3 +47,7 @@ Desenvolver um sistema em Go que receba um CEP, identifica a cidade e retorna o 
 - coloque sua API_KEY do https://www.weatherapi.com/ no `.env`
 - defina a porta que deseja subir a aplicação no `.env`
 - `make run` para executar o docker compose e subir a aplicação
+
+## CLOUD RUN
+
+url: https://cep-weather-660060311688.southamerica-east1.run.app/

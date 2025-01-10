@@ -83,7 +83,7 @@ func weatherHandler(w http.ResponseWriter, r *http.Request) {
 	cepInfo, err := getLocationData(cep)
 	if err != nil {
 		log.Println("getLocationData:", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, "error to get location data in viacep api", http.StatusInternalServerError)
 		return
 	}
 
@@ -96,7 +96,7 @@ func weatherHandler(w http.ResponseWriter, r *http.Request) {
 	weatherInfo, err := getWeatherData(cepInfo.City)
 	if err != nil {
 		log.Println("getWeatherData:", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, "error to get weather data in weather api", http.StatusInternalServerError)
 		return
 	}
 
